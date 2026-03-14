@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Knockoff Template</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #313338; color: white; font-family: sans-serif; }
+        .server-icon { @apply w-12 h-12 bg-[#313338] rounded-[24px] flex items-center justify-center cursor-pointer transition-all duration-200 hover:rounded-[16px] hover:bg-[#5865f2]; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="w-20 bg-[#1e1f22] flex flex-col items-center py-3 space-y-2 overflow-y-auto">
+        <div class="server-icon bg-[#5865f2] !rounded-[16px]"><b>D</b></div>
+        <hr class="w-8 border-[#35373c] border-2 rounded">
+        <div class="server-icon">G</div>
+        <div class="server-icon">+</div>
+    </aside>
+
+    <aside class="w-60 bg-[#2b2d31] flex flex-col">
+        <header class="h-12 border-b border-[#1e1f22] flex items-center px-4 font-bold shadow-sm">
+            Mein Super-Server
+        </header>
+        <nav class="flex-1 p-2 space-y-1">
+            <div class="text-gray-400 uppercase text-xs font-semibold px-2 mb-1 mt-4">Textkanäle</div>
+            <div class="bg-[#3f4147] text-white px-2 py-1 rounded cursor-pointer"># allgemein</div>
+            <div class="text-gray-400 px-2 py-1 hover:bg-[#35373c] hover:text-gray-200 rounded cursor-pointer"># hilfe-forum</div>
+        </nav>
+        <section class="bg-[#232428] p-2 flex items-center space-x-2">
+            <div class="w-8 h-8 bg-gray-500 rounded-full"></div>
+            <div class="flex-1 text-sm font-bold truncate">DeinName</div>
+        </section>
+    </aside>
+
+    <main class="flex-1 flex flex-col">
+        <header class="h-12 border-b border-[#1e1f22] flex items-center px-4 font-bold shadow-sm">
+            <span class="text-gray-400 mr-2">#</span> allgemein
+        </header>
+        
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
+            <div class="flex space-x-4">
+                <div class="w-10 h-10 bg-blue-500 rounded-full mt-1"></div>
+                <div>
+                    <p class="flex items-center"><span class="font-bold mr-2">AdminBot</span> <span class="text-xs text-gray-400">Heute um 12:00</span></p>
+                    <p class="text-gray-300">Willkommen auf dem Discord Knockoff! Schreib was unten rein.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4">
+            <div class="bg-[#383a40] rounded-lg px-4 py-2">
+                <input type="text" id="msg-input" placeholder="Nachricht an #allgemein" class="bg-transparent w-full outline-none text-gray-200 py-1">
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const input = document.getElementById('msg-input');
+        const chat = document.getElementById('chat-messages');
+
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && input.value.trim() !== "") {
+                const newMsg = `
+                    <div class="flex space-x-4">
+                        <div class="w-10 h-10 bg-green-500 rounded-full mt-1"></div>
+                        <div>
+                            <p class="flex items-center"><span class="font-bold mr-2">Du</span> <span class="text-xs text-gray-400">Gerade eben</span></p>
+                            <p class="text-gray-300">${input.value}</p>
+                        </div>
+                    </div>`;
+                chat.innerHTML += newMsg;
+                input.value = "";
+                chat.scrollTop = chat.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
