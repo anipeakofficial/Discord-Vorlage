@@ -7,78 +7,79 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;600;700&display=swap');
-        body { font-family: 'gg sans', sans-serif; background-color: #313338; color: #dbdee1; margin: 0; }
-        .auth-bg { background-image: url('https://discord.com/assets/652f404f231e2d129172.png'); background-size: cover; }
+        body { font-family: 'gg sans', sans-serif; background-color: #313338; color: #dbdee1; margin: 0; overflow: hidden; }
         .discord-card { background-color: #313338; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
         .input-box { @apply w-full bg-[#1e1f22] p-3 rounded text-[#dbdee1] outline-none border border-transparent focus:border-[#5865f2] transition-all; }
-        .btn-blurple { @apply w-full bg-[#5865f2] hover:bg-[#4752c4] text-white py-3 rounded font-medium transition-all; }
         
-        /* Profil Fenster nach Screenshot image_b5b0fa */
-        .profile-banner { background-color: #5865f2; height: 100px; width: 100%; position: relative; }
-        .avatar-circle { width: 80px; height: 80px; border-radius: 50%; border: 6px solid #1e1f22; position: absolute; bottom: -40px; left: 16px; background-color: #313338; }
+        /* Profile Layout nach image_b5b0fa */
+        .profile-banner { background-color: #5865f2; height: 120px; width: 100%; position: relative; }
+        .avatar-circle { width: 94px; height: 94px; border-radius: 50%; border: 7px solid #1e1f22; position: absolute; bottom: -47px; left: 22px; background-color: #313338; overflow: hidden; }
+        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
-<body class="h-screen flex items-center justify-center auth-bg">
+<body class="h-screen flex items-center justify-center">
 
     <div id="auth-view" class="discord-card w-[480px] p-8">
-        <h2 class="text-2xl font-bold text-white text-center mb-2">Willkommen zurück!</h2>
-        <p class="text-[#b5bac1] text-center mb-6">Wir freuen uns, dich wiederzusehen!</p>
+        <h2 class="text-2xl font-bold text-white text-center mb-6">Willkommen zurück!</h2>
         <div class="space-y-4">
             <div><label class="text-[12px] font-bold text-[#b5bac1] uppercase">Email</label><input type="email" id="email" class="input-box mt-2"></div>
             <div><label class="text-[12px] font-bold text-[#b5bac1] uppercase">Passwort</label><input type="password" id="pw" class="input-box mt-2"></div>
-            <button onclick="auth('login')" class="btn-blurple mt-2">Anmelden</button>
-            <button onclick="auth('reg')" class="text-[#00a8fc] text-sm hover:underline mt-2">Registrieren</button>
+            <button onclick="auth('login')" class="w-full bg-[#5865f2] py-3 rounded font-bold text-white hover:bg-[#4752c4]">Anmelden</button>
+            <button onclick="auth('reg')" class="text-[#00a8fc] text-sm hover:underline w-full text-center">Registrieren</button>
         </div>
         <p id="auth-err" class="text-red-400 text-xs mt-4 text-center"></p>
     </div>
 
     <div id="app" class="hidden fixed inset-0 flex">
-        <nav class="w-16 bg-[#1e1f22] flex flex-col items-center py-3 space-y-2 border-r border-black/20">
-            <div class="w-12 h-12 bg-[#5865f2] rounded-[15px] flex items-center justify-center text-white font-bold cursor-pointer">D</div>
-        </nav>
-
-        <aside class="w-60 bg-[#2b2d31] flex flex-col">
-            <div class="h-12 px-4 flex items-center shadow-md font-bold text-white border-b border-black/20">Direktnachrichten</div>
-            <div class="p-4"><button onclick="addFriendPrompt()" class="w-full bg-[#23a559] text-xs py-1.5 rounded text-white font-bold">Freund hinzufügen</button></div>
-            <div id="friends" class="flex-1 p-2 space-y-1">
+        <aside class="w-64 bg-[#2b2d31] flex flex-col border-r border-black/20">
+            <div class="h-12 px-4 flex items-center shadow-md font-bold text-white">Discord Clone</div>
+            <div class="p-3">
+                <button onclick="addFriend()" class="w-full bg-[#23a559] text-[11px] py-1.5 rounded text-white font-bold uppercase hover:bg-[#1a7a42]">Freund hinzufügen</button>
+            </div>
+            <div id="friends-list" class="flex-1 p-2 space-y-1 overflow-y-auto">
                 <div class="p-2 rounded bg-[#3f4147] text-white"># allgemein</div>
             </div>
-            <div class="bg-[#232428] p-2 flex items-center justify-between">
-                <div class="flex items-center space-x-2 cursor-pointer hover:bg-[#3f4147] p-1 rounded" onclick="openProfile()">
-                    <img id="my-avatar" class="w-8 h-8 rounded-full bg-gray-600" src="">
-                    <span id="my-name" class="text-xs font-bold text-white truncate w-24">User</span>
+            <div class="bg-[#232428] p-2 flex items-center justify-between shadow-inner">
+                <div class="flex items-center space-x-2 cursor-pointer hover:bg-[#3f4147] p-1 rounded group" onclick="openProfile()">
+                    <img id="my-avatar" class="w-8 h-8 rounded-full border border-black/20" src="">
+                    <div class="flex flex-col">
+                        <span id="my-name" class="text-xs font-bold text-white truncate w-24">User</span>
+                        <span class="text-[10px] text-gray-400">Online</span>
+                    </div>
                 </div>
-                <button onclick="logout()" class="text-gray-400 hover:text-white">✕</button>
+                <button onclick="location.reload()" class="text-gray-400 hover:text-white px-2">✕</button>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col bg-[#313338]">
             <header class="h-12 flex items-center px-4 border-b border-black/20 font-bold text-white"># allgemein</header>
-            <div id="msg-container" class="flex-1 p-4 overflow-y-auto space-y-2"></div>
+            <div id="msg-container" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
             <div class="p-4">
-                <input type="text" id="chat-input" placeholder="Nachricht an #allgemein" class="w-full bg-[#383a40] p-3 rounded-lg outline-none text-gray-200">
+                <input type="text" id="chat-input" placeholder="Nachricht an #allgemein" class="w-full bg-[#383a40] p-3 rounded-lg outline-none text-[#dbdee1]">
             </div>
         </main>
     </div>
 
     <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-        <div class="w-[600px] bg-[#1e1f22] rounded-lg overflow-hidden flex flex-col">
-            <div class="profile-banner"><div class="avatar-circle"><img id="edit-avatar-preview" src="" class="w-full h-full rounded-full"></div></div>
-            <div class="p-6 mt-12 bg-[#2b2d31] flex-1">
-                <div class="space-y-6">
+        <div class="w-[500px] bg-[#1e1f22] rounded-xl overflow-hidden shadow-2xl">
+            <div class="profile-banner">
+                <div class="avatar-circle">
+                    <img id="edit-avatar-preview" src="">
+                    <input type="file" id="file-input" class="hidden" accept="image/*" onchange="handleFile(this)">
+                    <div onclick="document.getElementById('file-input').click()" class="absolute inset-0 bg-black/40 flex items-center justify-center text-[10px] opacity-0 hover:opacity-100 cursor-pointer font-bold">ÄNDERN</div>
+                </div>
+            </div>
+            <div class="p-6 mt-12 bg-[#2b2d31]">
+                <div class="space-y-5">
                     <div>
-                        <label class="text-[12px] font-bold text-[#b5bac1] uppercase">Anzeigename</label>
-                        <input type="text" id="edit-username" class="input-box mt-2" placeholder="Dein Username">
+                        <label class="text-[11px] font-bold text-[#b5bac1] uppercase">Anzeigename</label>
+                        <input type="text" id="edit-username" class="input-box mt-2">
                     </div>
-                    <div>
-                        <label class="text-[12px] font-bold text-[#b5bac1] uppercase">Avatar URL</label>
-                        <input type="text" id="edit-avatar-url" class="input-box mt-2" placeholder="Link zum Bild">
-                    </div>
-                    <div class="bg-[#1e1f22] p-4 rounded-lg flex justify-between items-center">
-                        <span class="text-sm font-medium">Änderungen speichern?</span>
-                        <div class="space-x-2">
-                            <button onclick="closeProfile()" class="px-4 py-2 text-white text-sm">Abbrechen</button>
-                            <button onclick="saveProfile()" class="px-4 py-2 bg-[#23a559] hover:bg-[#1a7a42] text-white rounded text-sm font-bold">Speichern</button>
+                    <div class="bg-[#111214] p-4 rounded-lg flex justify-between items-center mt-4">
+                        <span class="text-xs text-gray-300">Änderungen speichern?</span>
+                        <div class="flex space-x-3">
+                            <button onclick="closeProfile()" class="text-white text-xs px-4">Abbrechen</button>
+                            <button onclick="saveProfile()" class="bg-[#23a559] hover:bg-[#1a7a42] text-white text-xs px-6 py-2 rounded font-bold">Speichern</button>
                         </div>
                     </div>
                 </div>
@@ -88,7 +89,7 @@
 
     <script>
         const SB_URL = 'https://lgtpahhjbbuxnawingqs.supabase.co';
-        const SB_KEY = 'sb_publishable_k1GFCx75w_ZdZTLUItzy5w__N8RxU...'; // DEIN KEY
+        const SB_KEY = 'sb_publishable_...'; // Dein Key
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let myProfile = null;
 
@@ -98,36 +99,45 @@
             const { data, error } = (type === 'login') 
                 ? await _sb.auth.signInWithPassword({ email, password })
                 : await _sb.auth.signUp({ email, password });
-
             if (error) document.getElementById('auth-err').innerText = error.message;
             else if (type === 'login') startApp(data.user);
-            else alert("Registriert! Jetzt einloggen.");
+            else alert("Account erstellt!");
         }
 
         async function startApp(user) {
             document.getElementById('auth-view').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
-            document.body.classList.remove('auth-bg', 'items-center', 'justify-center');
-
+            
             let { data: profile } = await _sb.from('profiles').select('*').eq('id', user.id).single();
             if (!profile) {
                 const name = user.email.split('@')[0];
-                const { data: newProf } = await _sb.from('profiles').insert([{ id: user.id, username: name, avatar_url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed='+name }]).select().single();
+                const { data: newProf } = await _sb.from('profiles').insert([{ id: user.id, username: name, avatar_url: 'https://api.dicebear.com/7.x/bottts/svg?seed='+name }]).select().single();
                 profile = newProf;
             }
             myProfile = profile;
             updateUI();
             loadMessages();
-            _sb.channel('global').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
+            _sb.channel('chat').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
                 addMsg(p.new.username, p.new.content);
             }).subscribe();
+        }
+
+        // BILD HOCHLADEN (FILE PICKER)
+        function handleFile(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('edit-avatar-preview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
         function updateUI() {
             document.getElementById('my-name').innerText = myProfile.username;
             document.getElementById('my-avatar').src = myProfile.avatar_url;
             document.getElementById('edit-username').value = myProfile.username;
-            document.getElementById('edit-avatar-url').value = myProfile.avatar_url;
             document.getElementById('edit-avatar-preview').src = myProfile.avatar_url;
         }
 
@@ -136,10 +146,10 @@
 
         async function saveProfile() {
             const name = document.getElementById('edit-username').value;
-            const url = document.getElementById('edit-avatar-url').value;
-            const { error } = await _sb.from('profiles').update({ username: name, avatar_url: url }).eq('id', myProfile.id);
-            if (error) alert("Username wird schon benutzt!");
-            else { myProfile.username = name; myProfile.avatar_url = url; updateUI(); closeProfile(); }
+            const avatar = document.getElementById('edit-avatar-preview').src; // Speichert das Bild als Base64
+            const { error } = await _sb.from('profiles').update({ username: name, avatar_url: avatar }).eq('id', myProfile.id);
+            if (error) alert("Fehler!");
+            else { myProfile.username = name; myProfile.avatar_url = avatar; updateUI(); closeProfile(); }
         }
 
         async function loadMessages() {
@@ -150,10 +160,10 @@
 
         function addMsg(user, text) {
             const div = document.createElement('div');
-            div.className = "flex flex-col hover:bg-black/10 px-1 rounded";
-            div.innerHTML = `<span class="text-xs font-bold text-white cursor-pointer hover:underline">${user}</span><span class="text-sm text-gray-300">${text}</span>`;
-            const c = document.getElementById('msg-container');
-            c.appendChild(div); c.scrollTop = c.scrollHeight;
+            div.className = "flex flex-col px-2 py-1 hover:bg-[#2e3035] rounded transition-colors";
+            div.innerHTML = `<span class="text-xs font-bold text-white">${user}</span><span class="text-sm text-gray-300">${text}</span>`;
+            document.getElementById('msg-container').appendChild(div);
+            document.getElementById('msg-container').scrollTop = document.getElementById('msg-container').scrollHeight;
         }
 
         document.getElementById('chat-input').addEventListener('keypress', async (e) => {
@@ -163,7 +173,17 @@
             }
         });
 
-        function logout() { _sb.auth.signOut(); location.reload(); }
+        // FRIEND LOGIK
+        function addFriend() {
+            const f = prompt("Username des Freundes:");
+            if(f) {
+                const div = document.createElement('div');
+                div.className = "p-2 hover:bg-[#35373c] rounded cursor-pointer text-sm text-gray-400";
+                div.innerText = f;
+                document.getElementById('friends-list').appendChild(div);
+            }
+        }
+
         _sb.auth.getSession().then(({data}) => { if (data.session) startApp(data.session.user); });
     </script>
 </body>
