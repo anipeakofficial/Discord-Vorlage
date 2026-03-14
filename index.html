@@ -2,41 +2,39 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Discord Clone + Admin Panel</title>
+    <title>Discord Clone - Nick Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;600;700&display=swap');
         body { font-family: 'gg sans', sans-serif; background-color: #313338; color: #dbdee1; margin: 0; }
-        .discord-btn { @apply w-full py-2.5 rounded font-bold transition-all text-white; }
-        .admin-only { display: none; } /* Standardmäßig versteckt */
+        .admin-badge { background-color: #f1c40f; color: #2b2d31; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 8px; text-transform: uppercase; }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
 
     <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#313338]">
         <div class="bg-[#2b2d31] p-8 rounded-lg shadow-2xl w-full max-w-md">
-            <h2 class="text-2xl font-bold text-white text-center mb-6">Willkommen</h2>
+            <h2 class="text-2xl font-bold text-white text-center mb-6">Willkommen zurück!</h2>
             <div class="space-y-4">
                 <input type="email" id="auth-email" placeholder="Email" class="w-full bg-[#1e1f22] p-2.5 rounded outline-none border border-transparent focus:border-[#5865f2]">
                 <input type="password" id="auth-password" placeholder="Passwort" class="w-full bg-[#1e1f22] p-2.5 rounded outline-none border border-transparent focus:border-[#5865f2]">
-                <button onclick="handleLogin()" class="discord-btn bg-[#5865f2] hover:bg-[#4752c4]">Anmelden</button>
-                <button onclick="handleSignup()" class="w-full text-sm text-[#00a8fc] hover:underline">Registrieren</button>
-                <p id="auth-error" class="text-red-500 text-xs text-center"></p>
+                <button onclick="handleLogin()" class="w-full bg-[#5865f2] text-white py-2.5 rounded font-bold hover:bg-[#4752c4]">Anmelden</button>
+                <button onclick="handleSignup()" class="w-full text-sm text-[#00a8fc] hover:underline mt-2">Registrieren</button>
+                <p id="auth-error" class="text-red-500 text-xs text-center mt-2"></p>
             </div>
         </div>
     </div>
 
     <div id="app" class="hidden flex w-full h-full">
         <aside class="w-60 bg-[#2b2d31] flex flex-col border-r border-black/20">
-            <div class="h-12 px-4 flex items-center shadow-md font-bold text-white">Discord Knockoff</div>
-            
-            <div class="flex-1 overflow-y-auto p-2 space-y-2">
-                <div onclick="showChat('allgemein')" class="p-2 rounded cursor-pointer hover:bg-[#35373c]"># allgemein</div>
+            <div class="h-12 px-4 flex items-center shadow-md font-bold text-white">Discord Clone</div>
+            <div class="flex-1 p-2 space-y-2">
+                <div class="p-2 rounded bg-[#3f4147] text-white"># allgemein</div>
                 
-                <div id="admin-section" class="admin-only border-t border-gray-700 pt-4 mt-4">
-                    <p class="text-[10px] font-bold text-red-400 uppercase px-2 mb-2">Admin Panel</p>
-                    <button onclick="clearAllMessages()" class="w-full bg-red-600 hover:bg-red-700 text-white text-[10px] py-1 rounded font-bold uppercase">Chat Leeren</button>
+                <div id="admin-section" class="hidden border-t border-gray-700 pt-4 mt-4 text-center">
+                    <p class="text-[10px] font-bold text-yellow-500 uppercase mb-2 italic">Admin Control 👑</p>
+                    <button onclick="clearAllMessages()" class="bg-red-600 hover:bg-red-700 text-white text-[10px] py-1 px-4 rounded font-bold">CHAT LEEREN</button>
                 </div>
             </div>
 
@@ -45,7 +43,7 @@
                     <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-xs font-bold" id="my-avatar">?</div>
                     <span class="text-xs font-bold text-white truncate" id="my-name">User</span>
                 </div>
-                <button onclick="logout()" class="text-gray-400 hover:text-white text-xl">✕</button>
+                <button onclick="logout()" class="text-gray-400 hover:text-white">✕</button>
             </div>
         </aside>
 
@@ -53,19 +51,19 @@
             <header class="h-12 flex items-center px-4 border-b border-[#1e1f22] shadow-sm font-bold text-white"># allgemein</header>
             <div id="messages-container" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
             <div class="p-4">
-                <input type="text" id="chat-input" placeholder="Nachricht..." class="w-full bg-[#383a40] p-3 rounded-lg outline-none text-gray-200">
+                <input type="text" id="chat-input" placeholder="Nachricht an #allgemein" class="w-full bg-[#383a40] p-3 rounded-lg outline-none text-gray-200">
             </div>
         </main>
     </div>
 
     <script>
+        // Deine Daten aus den Screenshots
         const SB_URL = 'https://lgtpahhjbbuxnawingqs.supabase.co';
-        const SB_KEY = 'sb_publishable_k1GFCx75w_ZdZTLUItzy5w__N8RxUt9';
+        const SB_KEY = 'sb_publishable_k1GFCx75w_ZdZTLUItzy5w__N8RxUt9'; // Dein Key aus
         const _sb = supabase.createClient(SB_URL, SB_KEY);
-
         const ADMIN_EMAIL = 'nick2139@gmx.net';
 
-        // AUTH
+        // LOGIN & REGISTER
         async function handleLogin() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
@@ -79,7 +77,7 @@
             const password = document.getElementById('auth-password').value;
             const { error } = await _sb.auth.signUp({ email, password });
             if (error) document.getElementById('auth-error').innerText = error.message;
-            else alert("Account erstellt! Falls du dich nicht einloggen kannst, schalte 'Confirm Email' in Supabase aus.");
+            else alert("Registriert! Du kannst dich jetzt einloggen.");
         }
 
         function setupApp(user) {
@@ -88,56 +86,60 @@
             document.getElementById('my-name').innerText = user.email;
             document.getElementById('my-avatar').innerText = user.email[0].toUpperCase();
 
-            // Admin Panel check
             if (user.email === ADMIN_EMAIL) {
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                document.getElementById('admin-section').classList.remove('hidden');
             }
 
             loadMessages();
-            startRealtime();
+            _sb.channel('chat').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
+                displayMsg(p.new.username, p.new.content);
+            }).subscribe();
         }
 
-        // ADMIN FUNKTION
-        async function clearAllMessages() {
-            if (!confirm("Wirklich ALLE Nachrichten löschen?")) return;
-            // Hinweis: Damit das klappt, braucht der Admin-User die Berechtigung oder RLS muss aus sein.
-            const { error } = await _sb.from('messages').delete().neq('id', 0); 
-            if (error) alert("Fehler: " + error.message);
-            else location.reload();
-        }
-
-        // CHAT LOGIK
+        // CHAT FUNKTIONEN
         async function loadMessages() {
-            const container = document.getElementById('messages-container');
-            container.innerHTML = "";
             const { data } = await _sb.from('messages').select('*').order('id', { ascending: true });
+            document.getElementById('messages-container').innerHTML = "";
             data?.forEach(m => displayMsg(m.username, m.content));
         }
 
         function displayMsg(user, text) {
             const container = document.getElementById('messages-container');
+            const isAdmin = user === ADMIN_EMAIL;
+            const badge = isAdmin ? '<span class="admin-badge">Admin 👑</span>' : '';
+            
             const div = document.createElement('div');
-            div.className = "flex flex-col border-l-2 border-[#5865f2] pl-3 py-1";
-            div.innerHTML = `<span class="text-[10px] font-bold text-gray-400">${user}</span><span class="text-sm text-gray-200">${text}</span>`;
+            div.className = "flex flex-col mb-2";
+            div.innerHTML = `
+                <div class="flex items-center text-[11px] font-bold">
+                    <span class="${isAdmin ? 'text-yellow-500' : 'text-white'}">${user.split('@')[0]}</span>
+                    ${badge}
+                </div>
+                <div class="text-sm text-gray-300">${text}</div>
+            `;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
 
-        function startRealtime() {
-            _sb.channel('global').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
-                displayMsg(p.new.username, p.new.content);
-            }).subscribe();
-        }
-
         document.getElementById('chat-input').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter' && e.target.value.trim() !== "") {
-                const val = e.target.value; e.target.value = "";
+                const content = e.target.value;
+                e.target.value = "";
                 const user = (await _sb.auth.getUser()).data.user;
-                await _sb.from('messages').insert([{ username: user.email, content: val }]);
+                await _sb.from('messages').insert([{ username: user.email, content: content }]);
             }
         });
 
+        async function clearAllMessages() {
+            if (confirm("Chat wirklich leeren?")) {
+                await _sb.from('messages').delete().neq('username', 'system');
+                location.reload();
+            }
+        }
+
         function logout() { _sb.auth.signOut(); location.reload(); }
+
+        // Start Check
         _sb.auth.getSession().then(({data}) => { if (data.session) setupApp(data.session.user); });
     </script>
 </body>
