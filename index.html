@@ -2,162 +2,211 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Discord Clone</title>
+    <title>Discord Clone Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;600;700&display=swap');
-        body { font-family: 'gg sans', sans-serif; background-color: #313338; color: #dbdee1; margin: 0; }
-        .input-box { @apply w-full bg-[#1e1f22] p-2.5 rounded outline-none border border-transparent focus:border-[#5865f2] text-white; }
-        .btn-blurple { @apply w-full bg-[#5865f2] text-white py-2.5 rounded font-bold hover:bg-[#4752c4] transition-all; }
+        body { font-family: 'gg sans', sans-serif; background-color: #313338; color: #dbdee1; }
+        .discord-input { @apply w-full bg-[#1e1f22] p-3 rounded text-white outline-none border border-transparent focus:border-[#5865f2] transition-all; }
+        .btn-primary { @apply w-full bg-[#5865f2] hover:bg-[#4752c4] text-white py-3 rounded font-bold transition-all shadow-lg; }
     </style>
 </head>
 <body class="h-screen flex items-center justify-center overflow-hidden">
 
-    <div id="auth-screen" class="w-full max-w-md bg-[#2b2d31] p-8 rounded-lg shadow-2xl">
-        <div id="login-form">
+    <div id="auth-screen" class="w-full max-w-[480px] bg-[#2b2d31] p-8 rounded-lg shadow-2xl border border-black/20">
+        <div id="auth-box">
             <h2 class="text-2xl font-bold text-white text-center mb-2">Willkommen zurück!</h2>
-            <p class="text-gray-400 text-center mb-6">Wir freuen uns, dich wiederzusehen!</p>
-            <div class="space-y-4">
+            <p class="text-gray-400 text-center mb-8">Wir freuen uns, dich wiederzusehen!</p>
+            
+            <div class="space-y-5">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Email</label>
-                    <input type="email" id="login-email" class="input-box">
+                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Email</label>
+                    <input type="email" id="auth-email" class="discord-input">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Passwort</label>
-                    <input type="password" id="login-password" class="input-box">
+                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Passwort</label>
+                    <input type="password" id="auth-password" class="discord-input">
                 </div>
-                <button onclick="authAction('login')" class="btn-blurple">Anmelden</button>
-                <p class="text-sm text-gray-400">Brauchst du einen Account? <a href="#" onclick="toggleAuth(false)" class="text-[#00a8fc] hover:underline">Registrieren</a></p>
+                <button onclick="handleAuth('login')" class="btn-primary">Anmelden</button>
+                <button onclick="handleAuth('register')" class="w-full text-sm text-[#00a8fc] hover:underline mt-2">Registrieren</button>
             </div>
+            <p id="auth-error" class="text-red-500 text-xs mt-4 text-center font-medium"></p>
         </div>
-
-        <div id="register-form" class="hidden">
-            <h2 class="text-2xl font-bold text-white text-center mb-2">Account erstellen</h2>
-            <div class="space-y-4 mt-6">
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Email</label>
-                    <input type="email" id="reg-email" class="input-box">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Passwort</label>
-                    <input type="password" id="reg-password" class="input-box">
-                </div>
-                <button onclick="authAction('register')" class="btn-blurple">Fortfahren</button>
-                <p class="text-sm text-gray-400">Hast du bereits einen Account? <a href="#" onclick="toggleAuth(true)" class="text-[#00a8fc] hover:underline">Einloggen</a></p>
-            </div>
-        </div>
-        <p id="auth-error" class="text-red-500 text-xs mt-4 text-center"></p>
     </div>
 
     <div id="app" class="hidden w-full h-full flex">
-        <aside class="w-60 bg-[#2b2d31] flex flex-col border-r border-black/20">
-            <div class="h-12 px-4 flex items-center shadow-md font-bold text-white border-b border-[#1e1f22]">Discord Clone</div>
-            <div class="flex-1 p-2">
-                <div class="p-2 rounded bg-[#3f4147] text-white mb-4"># allgemein</div>
-                
-                <div id="admin-panel" class="hidden border-t border-gray-700 pt-4 mt-4">
-                    <p class="text-[10px] font-bold text-yellow-500 uppercase px-2 mb-2">Admin Bereich 👑</p>
-                    <button onclick="clearChat()" class="w-full bg-red-600 hover:bg-red-700 text-white text-[10px] py-1.5 rounded font-bold uppercase">Chat Reset</button>
-                </div>
+        <aside class="w-72 bg-[#2b2d31] flex flex-col border-r border-black/40">
+            <div class="h-14 px-4 flex items-center shadow-md font-bold text-white border-b border-[#1e1f22]">Direktnachrichten</div>
+            
+            <div class="p-4 border-b border-[#1e1f22]">
+                <input type="text" id="friend-search" placeholder="Username adden..." class="w-full bg-[#1e1f22] text-xs p-2 rounded outline-none border border-transparent focus:border-[#5865f2]">
+                <button onclick="addFriend()" class="w-full mt-2 bg-[#23a559] text-[10px] py-1.5 rounded text-white font-bold uppercase hover:bg-[#1a7a42]">Freund hinzufügen</button>
             </div>
-            <div class="bg-[#232428] p-2 flex items-center justify-between">
-                <div class="flex items-center space-x-2 truncate">
-                    <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-xs font-bold" id="user-initial">?</div>
-                    <span class="text-xs font-bold text-white truncate" id="user-display">User</span>
+
+            <div id="friend-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+                <div class="text-[11px] font-bold text-gray-400 uppercase px-2 py-2">Deine Freunde</div>
                 </div>
-                <button onclick="logout()" class="text-gray-400 hover:text-white">✕</button>
+
+            <div class="bg-[#232428] p-2 flex items-center space-x-3">
+                <div class="relative group cursor-pointer" onclick="openProfileSettings()">
+                    <img id="my-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" class="w-8 h-8 rounded-full border border-gray-600">
+                    <div class="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-[8px]">EDIT</div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white truncate" id="my-username-display">Lade...</div>
+                    <div class="text-[10px] text-gray-400 italic">Online</div>
+                </div>
+                <button onclick="logout()" class="text-gray-400 hover:text-red-400 transition-colors">✕</button>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col bg-[#313338]">
-            <header class="h-12 flex items-center px-4 border-b border-[#1e1f22] shadow-sm font-bold text-white"># allgemein</header>
+            <header id="chat-header" class="h-14 flex items-center px-4 border-b border-[#1e1f22] shadow-sm font-bold text-white"># allgemein</header>
             <div id="messages" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
             <div class="p-4">
-                <input type="text" id="msg-input" placeholder="Nachricht schreiben..." class="w-full bg-[#383a40] p-3 rounded-lg outline-none text-gray-200">
+                <input type="text" id="msg-input" placeholder="Nachricht..." class="w-full bg-[#383a40] p-4 rounded-xl outline-none text-gray-200 shadow-inner">
             </div>
         </main>
     </div>
 
+    <div id="profile-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
+        <div class="bg-[#2b2d31] p-6 rounded-lg w-full max-w-sm">
+            <h3 class="text-xl font-bold text-white mb-4">Profil bearbeiten</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Einzigartiger Username</label>
+                    <input type="text" id="new-username" class="discord-input text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Avatar URL (Link zu Bild)</label>
+                    <input type="text" id="new-avatar" class="discord-input text-sm">
+                </div>
+                <div class="flex space-x-2 pt-4">
+                    <button onclick="saveProfile()" class="btn-primary flex-1">Speichern</button>
+                    <button onclick="closeProfileSettings()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white rounded font-bold">Abbrechen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Deine Supabase Daten
+        // DEINE DATEN (Aus image_c106a8.png)
         const SB_URL = 'https://lgtpahhjbbuxnawingqs.supabase.co';
-        const SB_KEY = 'sb_publishable_k1GFCx75w_ZdZTLUItzy5w__N8RxUt9'; // Dein Anon Key aus
+        const SB_KEY = 'DEIN_ANON_KEY'; 
         const _sb = supabase.createClient(SB_URL, SB_KEY);
-        const ADMIN_EMAIL = 'nick2139@gmx.net';
 
-        function toggleAuth(showLogin) {
-            document.getElementById('login-form').classList.toggle('hidden', !showLogin);
-            document.getElementById('register-form').classList.toggle('hidden', showLogin);
-            document.getElementById('auth-error').innerText = "";
-        }
+        let currentUser = null;
+        let myProfile = { username: '', avatar_url: '' };
 
-        async function authAction(type) {
-            const email = type === 'login' ? document.getElementById('login-email').value : document.getElementById('reg-email').value;
-            const password = type === 'login' ? document.getElementById('login-password').value : document.getElementById('reg-password').value;
-            
-            let result;
-            if (type === 'login') {
-                result = await _sb.auth.signInWithPassword({ email, password });
+        async function handleAuth(type) {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const btn = event.target;
+            btn.innerText = "Lade...";
+
+            const { data, error } = (type === 'login') 
+                ? await _sb.auth.signInWithPassword({ email, password })
+                : await _sb.auth.signUp({ email, password });
+
+            if (error) {
+                document.getElementById('auth-error').innerText = error.message;
+                btn.innerText = type === 'login' ? 'Anmelden' : 'Registrieren';
+            } else if (type === 'login') {
+                initApp(data.user);
             } else {
-                result = await _sb.auth.signUp({ email, password });
-                if (!result.error) alert("Registrierung erfolgreich! Du kannst dich jetzt einloggen.");
+                alert("Account erstellt! Du kannst dich jetzt einloggen.");
+                btn.innerText = 'Registrieren';
             }
-
-            if (result.error) document.getElementById('auth-error').innerText = result.error.message;
-            else if (type === 'login') startApp(result.data.user);
         }
 
-        function startApp(user) {
+        async function initApp(user) {
+            currentUser = user;
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
             document.body.classList.remove('items-center', 'justify-center');
-            
-            document.getElementById('user-display').innerText = user.email;
-            document.getElementById('user-initial').innerText = user.email[0].toUpperCase();
 
-            if (user.email === ADMIN_EMAIL) {
-                document.getElementById('admin-panel').classList.remove('hidden');
+            // Profil laden oder erstellen
+            let { data: profile } = await _sb.from('profiles').select('*').eq('id', user.id).single();
+            
+            if (!profile) {
+                const defaultName = user.email.split('@')[0] + Math.floor(Math.random()*999);
+                const { data: newProf } = await _sb.from('profiles').insert([
+                    { id: user.id, username: defaultName, avatar_url: `https://api.dicebear.com/7.x/bottts/svg?seed=${defaultName}` }
+                ]).select().single();
+                profile = newProf;
             }
 
+            myProfile = profile;
+            updateUIProfile();
             loadMessages();
-            _sb.channel('chat').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
-                renderMsg(p.new.username, p.new.content);
-            }).subscribe();
+            startRealtime();
         }
 
+        function updateUIProfile() {
+            document.getElementById('my-username-display').innerText = myProfile.username;
+            document.getElementById('my-avatar-img').src = myProfile.avatar_url;
+            document.getElementById('new-username').value = myProfile.username;
+            document.getElementById('new-avatar').value = myProfile.avatar_url;
+        }
+
+        // PROFIL BEARBEITEN
+        function openProfileSettings() { document.getElementById('profile-modal').classList.remove('hidden'); }
+        function closeProfileSettings() { document.getElementById('profile-modal').classList.add('hidden'); }
+
+        async function saveProfile() {
+            const username = document.getElementById('new-username').value;
+            const avatar = document.getElementById('new-avatar').value;
+
+            const { error } = await _sb.from('profiles').update({ username, avatar_url: avatar }).eq('id', currentUser.id);
+            
+            if (error) {
+                alert("Username wird schon verwendet oder ist ungültig!");
+            } else {
+                myProfile = { username, avatar_url: avatar };
+                updateUIProfile();
+                closeProfileSettings();
+            }
+        }
+
+        // REST DER LOGIK (Messages, Logout)
         async function loadMessages() {
-            const { data } = await _sb.from('messages').select('*').order('id', { ascending: true });
+            const { data } = await _sb.from('messages').select('*').order('id', { ascending: true }).limit(50);
             document.getElementById('messages').innerHTML = "";
             data?.forEach(m => renderMsg(m.username, m.content));
         }
 
         function renderMsg(user, text) {
             const div = document.createElement('div');
-            const isNick = user === ADMIN_EMAIL;
-            div.innerHTML = `<div class="flex flex-col"><span class="text-xs font-bold ${isNick ? 'text-yellow-500' : 'text-white'}">${user.split('@')[0]} ${isNick ? '👑' : ''}</span><span class="text-sm text-gray-300">${text}</span></div>`;
-            document.getElementById('messages').appendChild(div);
-            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+            div.className = "flex space-x-3 hover:bg-black/5 p-1 rounded transition-colors";
+            div.innerHTML = `
+                <div class="flex-1">
+                    <span class="text-xs font-bold text-white mr-2">${user}</span>
+                    <span class="text-[10px] text-gray-500 uppercase">Heute</span>
+                    <p class="text-sm text-gray-300 leading-tight">${text}</p>
+                </div>
+            `;
+            const container = document.getElementById('messages');
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function startRealtime() {
+            _sb.channel('global').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
+                renderMsg(p.new.username, p.new.content);
+            }).subscribe();
         }
 
         document.getElementById('msg-input').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter' && e.target.value.trim() !== "") {
                 const val = e.target.value; e.target.value = "";
-                const { data: { user } } = await _sb.auth.getUser();
-                await _sb.from('messages').insert([{ username: user.email, content: val }]);
+                await _sb.from('messages').insert([{ username: myProfile.username, content: val }]);
             }
         });
 
-        async function clearChat() {
-            if (confirm("Alles löschen?")) {
-                await _sb.from('messages').delete().neq('id', 0);
-                location.reload();
-            }
-        }
-
         function logout() { _sb.auth.signOut(); location.reload(); }
 
-        _sb.auth.getSession().then(({data}) => { if (data.session) startApp(data.session.user); });
+        _sb.auth.getSession().then(({data}) => { if (data.session) initApp(data.session.user); });
     </script>
 </body>
 </html>
