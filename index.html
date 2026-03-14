@@ -3,78 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Knockoff Template</title>
+    <title>Discord Knockoff</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background-color: #313338; color: white; font-family: sans-serif; }
-        .server-icon { @apply w-12 h-12 bg-[#313338] rounded-[24px] flex items-center justify-center cursor-pointer transition-all duration-200 hover:rounded-[16px] hover:bg-[#5865f2]; }
+        body { background-color: #313338; color: white; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #2b2d31; }
+        ::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 4px; }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
 
-    <aside class="w-20 bg-[#1e1f22] flex flex-col items-center py-3 space-y-2 overflow-y-auto">
-        <div class="server-icon bg-[#5865f2] !rounded-[16px]"><b>D</b></div>
+    <aside class="w-20 bg-[#1e1f22] flex flex-col items-center py-3 space-y-2">
+        <div class="w-12 h-12 bg-[#5865f2] rounded-2xl flex items-center justify-center cursor-pointer hover:rounded-xl transition-all">
+            <span class="font-bold text-xl">D</span>
+        </div>
         <hr class="w-8 border-[#35373c] border-2 rounded">
-        <div class="server-icon">G</div>
-        <div class="server-icon">+</div>
+        <div class="w-12 h-12 bg-[#313338] rounded-3xl flex items-center justify-center cursor-pointer hover:rounded-xl hover:bg-[#23a559] transition-all text-2xl">+</div>
     </aside>
 
     <aside class="w-60 bg-[#2b2d31] flex flex-col">
         <header class="h-12 border-b border-[#1e1f22] flex items-center px-4 font-bold shadow-sm">
-            Mein Super-Server
+            Mein GitHub Server
         </header>
         <nav class="flex-1 p-2 space-y-1">
-            <div class="text-gray-400 uppercase text-xs font-semibold px-2 mb-1 mt-4">Textkanäle</div>
-            <div class="bg-[#3f4147] text-white px-2 py-1 rounded cursor-pointer"># allgemein</div>
-            <div class="text-gray-400 px-2 py-1 hover:bg-[#35373c] hover:text-gray-200 rounded cursor-pointer"># hilfe-forum</div>
+            <div class="text-gray-400 uppercase text-[11px] font-bold px-2 mb-1 mt-4 tracking-wider">Textkanäle</div>
+            <div class="bg-[#3f4147] text-white px-2 py-1.5 rounded cursor-pointer flex items-center">
+                <span class="text-gray-400 text-xl mr-2">#</span> allgemein
+            </div>
+            <div class="text-gray-400 px-2 py-1.5 hover:bg-[#35373c] hover:text-gray-200 rounded cursor-pointer flex items-center">
+                <span class="text-gray-400 text-xl mr-2">#</span> off-topic
+            </div>
         </nav>
-        <section class="bg-[#232428] p-2 flex items-center space-x-2">
-            <div class="w-8 h-8 bg-gray-500 rounded-full"></div>
-            <div class="flex-1 text-sm font-bold truncate">DeinName</div>
+        <section class="bg-[#232428] p-2 flex items-center justify-between">
+            <div class="flex items-center space-x-2 cursor-pointer hover:bg-[#3f4147] p-1 rounded pr-4">
+                <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center font-bold text-xs">DU</div>
+                <div class="text-xs font-bold leading-tight">User_<span id="my-id">...</span><br><span class="text-gray-400 font-normal">Online</span></div>
+            </div>
         </section>
     </aside>
 
-    <main class="flex-1 flex flex-col">
+    <main class="flex-1 flex flex-col bg-[#313338]">
         <header class="h-12 border-b border-[#1e1f22] flex items-center px-4 font-bold shadow-sm">
-            <span class="text-gray-400 mr-2">#</span> allgemein
+            <span class="text-gray-400 text-2xl mr-2 font-normal">#</span> allgemein
         </header>
         
-        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
-            <div class="flex space-x-4">
-                <div class="w-10 h-10 bg-blue-500 rounded-full mt-1"></div>
-                <div>
-                    <p class="flex items-center"><span class="font-bold mr-2">AdminBot</span> <span class="text-xs text-gray-400">Heute um 12:00</span></p>
-                    <p class="text-gray-300">Willkommen auf dem Discord Knockoff! Schreib was unten rein.</p>
-                </div>
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-6">
             </div>
-        </div>
 
-        <div class="p-4">
+        <div class="px-4 pb-6">
             <div class="bg-[#383a40] rounded-lg px-4 py-2">
-                <input type="text" id="msg-input" placeholder="Nachricht an #allgemein" class="bg-transparent w-full outline-none text-gray-200 py-1">
+                <input type="text" id="msg-input" placeholder="Nachricht an #allgemein" class="bg-transparent w-full outline-none text-gray-200 py-2">
             </div>
         </div>
     </main>
 
+    <aside class="w-60 bg-[#2b2d31] hidden lg:flex flex-col p-3">
+        <div class="text-gray-400 uppercase text-[11px] font-bold px-2 mb-4 tracking-wider">Online — 3</div>
+        <div class="space-y-3">
+            <div class="flex items-center space-x-3 opacity-90 hover:bg-[#35373c] p-1 rounded cursor-pointer">
+                <div class="w-8 h-8 bg-green-500 rounded-full"></div>
+                <span class="font-medium text-gray-300">CoolerFreund_1</span>
+            </div>
+            <div class="flex items-center space-x-3 opacity-90 hover:bg-[#35373c] p-1 rounded cursor-pointer">
+                <div class="w-8 h-8 bg-purple-500 rounded-full"></div>
+                <span class="font-medium text-gray-300">Beta-Tester</span>
+            </div>
+        </div>
+    </aside>
+
     <script>
+        // --- DEINE KONFIGURATION ---
+        const SUPABASE_URL = 'https://lgtpahhjbbuxnawingqs.supabase.co';
+        const SUPABASE_KEY = 'DEINEN_SB_PUBLISHABLE_KEY_HIER_EINSETZEN'; 
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         const input = document.getElementById('msg-input');
         const chat = document.getElementById('chat-messages');
+        const myId = Math.floor(Math.random() * 9999);
+        document.getElementById('my-id').innerText = myId;
 
-        input.addEventListener('keypress', (e) => {
+        // Funktion: Nachricht im UI anzeigen
+        function appendMessage(user, text) {
+            const div = document.createElement('div');
+            div.className = "flex space-x-4";
+            div.innerHTML = `
+                <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center font-bold text-xs">${user.substring(0,2)}</div>
+                <div>
+                    <p class="flex items-center"><span class="font-bold mr-2 hover:underline cursor-pointer">${user}</span> <span class="text-[10px] text-gray-400">Heute um ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span></p>
+                    <p class="text-[#dbdee1]">${text}</p>
+                </div>`;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // 1. Echtzeit-Abo: Nachrichten empfangen
+        supabase
+            .channel('chat')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                appendMessage(payload.new.username, payload.new.content);
+            })
+            .subscribe();
+
+        // 2. Nachrichten senden
+        input.addEventListener('keypress', async (e) => {
             if (e.key === 'Enter' && input.value.trim() !== "") {
-                const newMsg = `
-                    <div class="flex space-x-4">
-                        <div class="w-10 h-10 bg-green-500 rounded-full mt-1"></div>
-                        <div>
-                            <p class="flex items-center"><span class="font-bold mr-2">Du</span> <span class="text-xs text-gray-400">Gerade eben</span></p>
-                            <p class="text-gray-300">${input.value}</p>
-                        </div>
-                    </div>`;
-                chat.innerHTML += newMsg;
+                const text = input.value;
                 input.value = "";
-                chat.scrollTop = chat.scrollHeight;
+
+                await supabase.from('messages').insert([
+                    { username: 'User_' + myId, content: text }
+                ]);
             }
         });
+
+        // 3. Alte Nachrichten beim Start laden
+        async function loadMessages() {
+            const { data } = await supabase.from('messages').select('*').order('id', { ascending: true }).limit(50);
+            if (data) data.forEach(m => appendMessage(m.username, m.content));
+        }
+        loadMessages();
     </script>
 </body>
 </html>
