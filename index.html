@@ -3,109 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Clone + Login</title>
+    <title>Discord Clone v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background-color: #313338; color: white; font-family: sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;600;700&display=swap');
+        body { font-family: 'gg sans', 'Noto Sans', sans-serif; background-color: #313338; color: #dbdee1; }
+        .discord-blurple { background-color: #5865f2; }
+        .discord-blurple:hover { background-color: #4752c4; }
+        .input-dark { background-color: #1e1f22; color: #f2f3f5; }
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #1a1b1e; border-radius: 4px; }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="h-screen flex items-center justify-center overflow-hidden">
 
-    <aside class="w-20 bg-[#1e1f22] flex flex-col items-center py-3 space-y-2">
-        <div class="w-12 h-12 bg-[#5865f2] rounded-2xl flex items-center justify-center cursor-pointer"><b>D</b></div>
-    </aside>
-
-    <aside class="w-60 bg-[#2b2d31] flex flex-col">
-        <div class="h-12 border-b border-[#1e1f22] flex items-center px-4 font-bold shadow-sm">Server-Template</div>
-        <div class="flex-1 p-2">
-            <div class="text-gray-400 text-xs font-bold px-2 mb-2 mt-4 uppercase">Textkanäle</div>
-            <div class="bg-[#3f4147] px-2 py-1.5 rounded flex items-center"># allgemein</div>
-        </div>
-        <div class="bg-[#232428] p-2 flex items-center space-x-2">
-            <div id="user-avatar" class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">?</div>
-            <div class="text-xs">
-                <div id="username-display" class="font-bold">Anonym</div>
-                <div class="text-gray-400">Online</div>
+    <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#313338] bg-opacity-90 backdrop-blur-sm">
+        <div class="bg-[#2b2d31] p-8 rounded-lg shadow-2xl w-full max-w-md text-center">
+            <h2 class="text-2xl font-bold text-white mb-2">Willkommen zurück!</h2>
+            <p class="text-gray-400 mb-6">Wir freuen uns, dich wiederzusehen!</p>
+            
+            <div class="text-left space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Email</label>
+                    <input type="email" id="auth-email" class="w-full input-dark p-2.5 rounded outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Passwort</label>
+                    <input type="password" id="auth-password" class="w-full input-dark p-2.5 rounded outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button onclick="handleLogin()" class="w-full discord-blurple text-white font-medium py-2.5 rounded transition-all">Anmelden</button>
+                <button onclick="handleSignup()" class="w-full text-sm text-[#00a8fc] hover:underline mt-2">Noch keinen Account? Registrieren</button>
             </div>
         </div>
-    </aside>
+    </div>
 
-    <main class="flex-1 flex flex-col bg-[#313338]">
-        <div class="h-12 border-b border-[#1e1f22] flex items-center px-4 font-bold"># allgemein</div>
-        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
-        <div class="p-4">
-            <input type="text" id="msg-input" placeholder="Nachricht schreiben..." class="w-full bg-[#383a40] p-3 rounded-lg outline-none">
-        </div>
-    </main>
+    <div id="app" class="hidden w-full h-full flex">
+        
+        <nav class="w-18 bg-[#1e1f22] flex flex-col items-center py-3 space-y-2 flex-shrink-0">
+            <div class="w-12 h-12 discord-blurple rounded-[15px] flex items-center justify-center text-white cursor-pointer transition-all duration-200">
+                <svg width="28" height="20" viewBox="0 0 28 20" fill="currentColor"><path d="M23.0212 1.67671C21.3107 0.883335 19.4805 0.311795 17.5641 0C17.3261 0.419132 17.061 0.954747 16.8722 1.39459C14.8317 1.09641 12.8051 1.09641 10.7988 1.39459C10.6101 0.954747 10.3323 0.419132 10.1069 0C8.17805 0.311795 6.34783 0.883335 4.63733 1.67671C1.58477 6.13681 0.744141 10.4852 1.15174 14.7711C3.17946 16.2413 5.1415 17.1354 7.0581 17.7211C7.53761 17.0754 7.95761 16.3813 8.31075 15.6443C7.61864 15.3855 6.9535 15.0645 6.3267 14.6937C6.49121 14.5739 6.64964 14.4468 6.80164 14.3121C10.7423 16.108 15.0135 16.108 18.9113 14.3121C19.0633 14.4468 19.2217 14.5739 19.3862 14.6937C18.7594 15.0645 18.0943 15.3855 17.4021 15.6443C17.7553 16.3813 18.1753 17.0754 18.6548 17.7211C20.584 17.1354 22.546 16.2413 24.5738 14.7711C25.0454 9.80786 23.7845 5.50341 23.0212 1.67671Z"/></svg>
+            </div>
+            <div class="w-8 h-[2px] bg-[#35373c] rounded"></div>
+            <div class="w-12 h-12 bg-[#313338] rounded-[24px] hover:rounded-[15px] hover:bg-[#23a559] transition-all duration-200 flex items-center justify-center text-[#23a559] hover:text-white cursor-pointer text-2xl">+</div>
+        </nav>
+
+        <aside class="w-60 bg-[#2b2d31] flex flex-col">
+            <div class="h-12 px-4 flex items-center shadow-md font-bold text-white border-b border-[#1e1f22]">GitHub Template</div>
+            <div class="flex-1 overflow-y-auto p-2">
+                <div class="text-gray-400 text-[11px] font-bold uppercase tracking-wider px-2 mt-4 mb-2 italic">Textkanäle</div>
+                <div class="flex items-center px-2 py-1.5 rounded bg-[#3f4147] text-white cursor-pointer">
+                    <span class="text-gray-400 text-xl mr-1.5 font-light">#</span> allgemein
+                </div>
+            </div>
+            <div class="bg-[#232428] p-2 flex items-center">
+                <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center font-bold text-xs text-white" id="user-initial">?</div>
+                <div class="ml-2 flex-1 overflow-hidden">
+                    <div class="text-sm font-bold text-white truncate" id="user-display">User</div>
+                    <div class="text-[10px] text-gray-400">Online</div>
+                </div>
+                <button onclick="handleLogout()" class="p-1 hover:bg-[#3f4147] rounded text-gray-400 hover:text-gray-200">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2H3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-2z"/></svg>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col bg-[#313338] relative">
+            <header class="h-12 px-4 flex items-center shadow-md border-b border-[#1e1f22]">
+                <span class="text-gray-400 text-2xl mr-2 font-light">#</span>
+                <span class="font-bold text-white">allgemein</span>
+            </header>
+
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
+                </div>
+
+            <div class="px-4 pb-6">
+                <div class="bg-[#383a40] rounded-lg px-4 flex items-center">
+                    <input type="text" id="chat-input" placeholder="Nachricht an #allgemein" class="w-full bg-transparent py-3 outline-none text-[#dbdee1]">
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script>
-        // --- 1. SUPABASE SETUP ---
+        // 1. SUPABASE KONFIGURATION (HIER DEINE DATEN EINTRAGEN)
         const SUPABASE_URL = 'https://lgtpahhjbbuxnawingqs.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_k1GFCx75w_ZdZTLUItzy5w__N8RxUt9'; // <--- WICHTIG!
+        const SUPABASE_KEY = 'sb_publishable_k1GFCx75w_ZdZTLUItzy5w__N8RxUt9';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- 2. FAKE LOGIN ---
-        let myUsername = localStorage.getItem('chat-username');
-        if (!myUsername) {
-            myUsername = prompt("Gib deinen Chat-Namen ein:") || "User" + Math.floor(Math.random() * 100);
-            localStorage.setItem('chat-username', myUsername);
+        const overlay = document.getElementById('login-overlay');
+        const app = document.getElementById('app');
+        const chatBox = document.getElementById('chat-messages');
+
+        // 2. AUTH FUNKTIONEN
+        async function handleSignup() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const { error } = await _supabase.auth.signUp({ email, password });
+            if (error) alert("Fehler: " + error.message);
+            else alert("Registrierung erfolgreich! Bitte E-Mail bestätigen.");
         }
-        document.getElementById('username-display').innerText = myUsername;
-        document.getElementById('user-avatar').innerText = myUsername.substring(0,2).toUpperCase();
 
-        const input = document.getElementById('msg-input');
-        const chat = document.getElementById('chat-messages');
+        async function handleLogin() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) alert("Login fehlgeschlagen: " + error.message);
+            else setupApp(data.user);
+        }
 
-        // Funktion zum Nachrichten anzeigen
-        function renderMessage(user, content) {
+        async function handleLogout() {
+            await _supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        function setupApp(user) {
+            overlay.classList.add('hidden');
+            app.classList.remove('hidden');
+            document.getElementById('user-display').innerText = user.email.split('@')[0];
+            document.getElementById('user-initial').innerText = user.email.substring(0,1).toUpperCase();
+            loadMessages();
+            subscribeToChat();
+        }
+
+        // 3. CHAT LOGIK
+        function appendMsg(username, content) {
             const div = document.createElement('div');
-            div.className = "flex space-x-3 items-start";
+            div.className = "flex space-x-4 hover:bg-[#2e3035] -mx-4 px-4 py-1 transition-colors";
             div.innerHTML = `
-                <div class="w-10 h-10 bg-gray-500 rounded-full flex-shrink-0 flex items-center justify-center font-bold">${user.substring(0,1)}</div>
+                <div class="w-10 h-10 bg-gray-600 rounded-full flex-shrink-0 mt-1 flex items-center justify-center font-bold text-white text-xs">${username.substring(0,2)}</div>
                 <div>
-                    <div class="font-bold text-sm">${user}</div>
-                    <div class="text-gray-300 text-sm">${content}</div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-white hover:underline cursor-pointer">${username}</span>
+                        <span class="text-[10px] text-gray-400 uppercase">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <div class="text-[#dbdee1] leading-relaxed">${content}</div>
                 </div>
             `;
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // --- 3. DATEN LADEN & ECHTZEIT ---
-        async function init() {
-            // Alte Nachrichten laden
+        async function loadMessages() {
             const { data } = await _supabase.from('messages').select('*').order('id', { ascending: true });
-            if (data) data.forEach(m => renderMessage(m.username, m.content));
-
-            // Echtzeit-Abo
-            _supabase.channel('room1')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-                renderMessage(payload.new.username, payload.new.content);
-            })
-            .subscribe();
+            if (data) data.forEach(m => appendMsg(m.username, m.content));
         }
 
-        // --- 4. SENDEN ---
-        input.addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter' && input.value.trim() !== "") {
-                const val = input.value;
-                input.value = ""; // Input sofort leeren für besseres Feeling
+        function subscribeToChat() {
+            _supabase.channel('public:messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                appendMsg(payload.new.username, payload.new.content);
+            }).subscribe();
+        }
 
-                const { error } = await _supabase.from('messages').insert([
-                    { username: myUsername, content: val }
-                ]);
-                
-                if (error) {
-                    console.error("Senden fehlgeschlagen:", error);
-                    alert("Fehler: " + error.message);
-                }
+        document.getElementById('chat-input').addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter' && e.target.value.trim() !== "") {
+                const user = (await _supabase.auth.getUser()).data.user;
+                const content = e.target.value;
+                e.target.value = "";
+                await _supabase.from('messages').insert([{ username: user.email.split('@')[0], content: content }]);
             }
         });
 
-        init();
+        // Check Auth on Start
+        _supabase.auth.getSession().then(({data}) => {
+            if (data.session) setupApp(data.session.user);
+        });
     </script>
 </body>
 </html>
