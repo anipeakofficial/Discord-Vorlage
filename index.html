@@ -8,101 +8,78 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;600;700&display=swap');
         body { font-family: 'gg sans', sans-serif; background-color: #313338; color: #dbdee1; margin: 0; }
+        .auth-bg { background-image: url('https://discord.com/assets/652f404f231e2d129172.png'); background-size: cover; }
+        .discord-card { background-color: #313338; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+        .input-box { @apply w-full bg-[#1e1f22] p-3 rounded text-[#dbdee1] outline-none border border-transparent focus:border-[#5865f2] transition-all; }
+        .btn-blurple { @apply w-full bg-[#5865f2] hover:bg-[#4752c4] text-white py-3 rounded font-medium transition-all; }
         
-        /* Discord Login Background */
-        .auth-bg {
-            background-image: url('https://discord.com/assets/652f404f231e2d129172.png');
-            background-size: cover; background-position: center;
-        }
-
-        .discord-card { background-color: #313338; box-shadow: 0 2px 10px 0 rgba(0,0,0,0.2); }
-        .input-label { @apply block text-[12px] font-bold text-[#b5bac1] uppercase mb-2; }
-        .discord-input { @apply w-full bg-[#1e1f22] p-3 rounded text-[#dbdee1] outline-none border border-transparent focus:border-[#5865f2] transition-all; }
-        .btn-blurple { @apply w-full bg-[#5865f2] hover:bg-[#4752c4] text-white py-2.5 rounded font-medium transition-all; }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #2b2d31; }
-        ::-webkit-scrollbar-thumb { background: #1a1b1e; border-radius: 10px; }
+        /* Profil Fenster nach Screenshot image_b5b0fa */
+        .profile-banner { background-color: #5865f2; height: 100px; width: 100%; position: relative; }
+        .avatar-circle { width: 80px; height: 80px; border-radius: 50%; border: 6px solid #1e1f22; position: absolute; bottom: -40px; left: 16px; background-color: #313338; }
     </style>
 </head>
 <body class="h-screen flex items-center justify-center auth-bg">
 
-    <div id="auth-container" class="discord-card w-full max-w-[480px] p-8 rounded-lg shadow-2xl">
-        <div id="auth-view">
-            <h2 class="text-2xl font-bold text-white text-center mb-2">Willkommen zurück!</h2>
-            <p class="text-[#b5bac1] text-center mb-6">Wir freuen uns, dich wiederzusehen!</p>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="input-label">Email</label>
-                    <input type="email" id="email" class="discord-input">
-                </div>
-                <div>
-                    <label class="input-label">Passwort</label>
-                    <input type="password" id="password" class="discord-input">
-                </div>
-                <button onclick="handleAuth('login')" class="btn-blurple mt-2">Anmelden</button>
-                <div class="text-sm mt-2">
-                    <span class="text-[#b5bac1]">Brauchst du einen Account?</span>
-                    <button onclick="handleAuth('register')" class="text-[#00a8fc] hover:underline ml-1">Registrieren</button>
-                </div>
-            </div>
-            <p id="auth-error" class="text-[#fa777a] text-xs mt-4 text-center"></p>
+    <div id="auth-view" class="discord-card w-[480px] p-8">
+        <h2 class="text-2xl font-bold text-white text-center mb-2">Willkommen zurück!</h2>
+        <p class="text-[#b5bac1] text-center mb-6">Wir freuen uns, dich wiederzusehen!</p>
+        <div class="space-y-4">
+            <div><label class="text-[12px] font-bold text-[#b5bac1] uppercase">Email</label><input type="email" id="email" class="input-box mt-2"></div>
+            <div><label class="text-[12px] font-bold text-[#b5bac1] uppercase">Passwort</label><input type="password" id="pw" class="input-box mt-2"></div>
+            <button onclick="auth('login')" class="btn-blurple mt-2">Anmelden</button>
+            <button onclick="auth('reg')" class="text-[#00a8fc] text-sm hover:underline mt-2">Registrieren</button>
         </div>
+        <p id="auth-err" class="text-red-400 text-xs mt-4 text-center"></p>
     </div>
 
-    <div id="app" class="hidden fixed inset-0 flex bg-[#313338]">
-        <nav class="w-60 bg-[#2b2d31] flex flex-col border-r border-black/20">
-            <div class="h-12 px-4 flex items-center shadow-md font-bold text-white border-b border-[#1e1f22]">Discord Clone</div>
-            
-            <div class="p-3">
-                <button onclick="openProfile()" class="w-full text-left p-2 rounded hover:bg-[#35373c] flex items-center space-x-2 group">
-                    <img id="my-avatar" class="w-8 h-8 rounded-full bg-gray-600" src="">
-                    <span id="my-name" class="font-bold text-sm truncate">User</span>
-                </button>
-            </div>
-
-            <div class="flex-1 p-2 space-y-1 overflow-y-auto">
-                <div class="text-[12px] font-bold text-[#949ba4] uppercase px-2 py-2">Direktnachrichten</div>
-                <div class="p-2 rounded bg-[#3f4147] text-white cursor-pointer"># allgemein</div>
-            </div>
-
-            <div class="bg-[#232428] p-2">
-                <button onclick="logout()" class="w-full text-xs text-red-400 hover:bg-red-400/10 py-1 rounded">Abmelden</button>
-            </div>
+    <div id="app" class="hidden fixed inset-0 flex">
+        <nav class="w-16 bg-[#1e1f22] flex flex-col items-center py-3 space-y-2 border-r border-black/20">
+            <div class="w-12 h-12 bg-[#5865f2] rounded-[15px] flex items-center justify-center text-white font-bold cursor-pointer">D</div>
         </nav>
 
-        <main class="flex-1 flex flex-col">
-            <header class="h-12 flex items-center px-4 border-b border-[#1e1f22] shadow-sm font-bold text-white"># allgemein</header>
-            <div id="messages" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
-            <div class="p-4">
-                <div class="bg-[#383a40] rounded-lg px-4 flex items-center">
-                    <input type="text" id="msg-input" placeholder="Nachricht an #allgemein" class="w-full bg-transparent py-3 outline-none text-[#dbdee1]">
+        <aside class="w-60 bg-[#2b2d31] flex flex-col">
+            <div class="h-12 px-4 flex items-center shadow-md font-bold text-white border-b border-black/20">Direktnachrichten</div>
+            <div class="p-4"><button onclick="addFriendPrompt()" class="w-full bg-[#23a559] text-xs py-1.5 rounded text-white font-bold">Freund hinzufügen</button></div>
+            <div id="friends" class="flex-1 p-2 space-y-1">
+                <div class="p-2 rounded bg-[#3f4147] text-white"># allgemein</div>
+            </div>
+            <div class="bg-[#232428] p-2 flex items-center justify-between">
+                <div class="flex items-center space-x-2 cursor-pointer hover:bg-[#3f4147] p-1 rounded" onclick="openProfile()">
+                    <img id="my-avatar" class="w-8 h-8 rounded-full bg-gray-600" src="">
+                    <span id="my-name" class="text-xs font-bold text-white truncate w-24">User</span>
                 </div>
+                <button onclick="logout()" class="text-gray-400 hover:text-white">✕</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col bg-[#313338]">
+            <header class="h-12 flex items-center px-4 border-b border-black/20 font-bold text-white"># allgemein</header>
+            <div id="msg-container" class="flex-1 p-4 overflow-y-auto space-y-2"></div>
+            <div class="p-4">
+                <input type="text" id="chat-input" placeholder="Nachricht an #allgemein" class="w-full bg-[#383a40] p-3 rounded-lg outline-none text-gray-200">
             </div>
         </main>
     </div>
 
-    <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-        <div class="discord-card w-full max-w-[440px] rounded-lg overflow-hidden">
-            <div class="h-20 bg-[#5865f2]"></div>
-            <div class="px-4 pb-6 -mt-10">
-                <img id="edit-avatar-preview" class="w-20 h-20 rounded-full border-[6px] border-[#313338] bg-[#313338] mb-4" src="">
-                <h3 class="text-xl font-bold text-white mb-6">Benutzerprofil</h3>
-                
-                <div class="space-y-4">
+    <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+        <div class="w-[600px] bg-[#1e1f22] rounded-lg overflow-hidden flex flex-col">
+            <div class="profile-banner"><div class="avatar-circle"><img id="edit-avatar-preview" src="" class="w-full h-full rounded-full"></div></div>
+            <div class="p-6 mt-12 bg-[#2b2d31] flex-1">
+                <div class="space-y-6">
                     <div>
-                        <label class="input-label">Username</label>
-                        <input type="text" id="edit-username" class="discord-input">
+                        <label class="text-[12px] font-bold text-[#b5bac1] uppercase">Anzeigename</label>
+                        <input type="text" id="edit-username" class="input-box mt-2" placeholder="Dein Username">
                     </div>
                     <div>
-                        <label class="input-label">Avatar URL</label>
-                        <input type="text" id="edit-avatar-url" class="discord-input" placeholder="https://...">
+                        <label class="text-[12px] font-bold text-[#b5bac1] uppercase">Avatar URL</label>
+                        <input type="text" id="edit-avatar-url" class="input-box mt-2" placeholder="Link zum Bild">
                     </div>
-                    <div class="flex space-x-3 mt-8">
-                        <button onclick="saveProfile()" class="btn-blurple">Speichern</button>
-                        <button onclick="closeProfile()" class="w-full bg-[#4e5058] hover:bg-[#6d6f78] text-white py-2.5 rounded font-medium transition-all">Abbrechen</button>
+                    <div class="bg-[#1e1f22] p-4 rounded-lg flex justify-between items-center">
+                        <span class="text-sm font-medium">Änderungen speichern?</span>
+                        <div class="space-x-2">
+                            <button onclick="closeProfile()" class="px-4 py-2 text-white text-sm">Abbrechen</button>
+                            <button onclick="saveProfile()" class="px-4 py-2 bg-[#23a559] hover:bg-[#1a7a42] text-white rounded text-sm font-bold">Speichern</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -110,48 +87,40 @@
     </div>
 
     <script>
-        // Deine Konfiguration aus image_c106a8.png
         const SB_URL = 'https://lgtpahhjbbuxnawingqs.supabase.co';
-        const SB_KEY = 'sb_publishable_k1GFCx75w_ZdZTLUItzy5w__N8RxU...'; // Dein Key
+        const SB_KEY = 'sb_publishable_k1GFCx75w_ZdZTLUItzy5w__N8RxU...'; // DEIN KEY
         const _sb = supabase.createClient(SB_URL, SB_KEY);
-
         let myProfile = null;
 
-        async function handleAuth(type) {
+        async function auth(type) {
             const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const err = document.getElementById('auth-error');
-            
+            const password = document.getElementById('pw').value;
             const { data, error } = (type === 'login') 
                 ? await _sb.auth.signInWithPassword({ email, password })
                 : await _sb.auth.signUp({ email, password });
 
-            if (error) err.innerText = error.message;
-            else if (type === 'login') initApp(data.user);
-            else alert("Account erstellt! Jetzt einloggen.");
+            if (error) document.getElementById('auth-err').innerText = error.message;
+            else if (type === 'login') startApp(data.user);
+            else alert("Registriert! Jetzt einloggen.");
         }
 
-        async function initApp(user) {
-            document.getElementById('auth-container').classList.add('hidden');
+        async function startApp(user) {
+            document.getElementById('auth-view').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
-            document.body.classList.remove('auth-bg', 'flex', 'items-center', 'justify-center');
+            document.body.classList.remove('auth-bg', 'items-center', 'justify-center');
 
-            // Profil laden
             let { data: profile } = await _sb.from('profiles').select('*').eq('id', user.id).single();
-            
             if (!profile) {
-                // Nur erstellen, wenn wirklich keins da ist (Fix für "Username existiert")
-                const initialName = user.email.split('@')[0];
-                const { data: newProfile } = await _sb.from('profiles').insert([
-                    { id: user.id, username: initialName, avatar_url: `https://api.dicebear.com/7.x/identicon/svg?seed=${initialName}` }
-                ]).select().single();
-                profile = newProfile;
+                const name = user.email.split('@')[0];
+                const { data: newProf } = await _sb.from('profiles').insert([{ id: user.id, username: name, avatar_url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed='+name }]).select().single();
+                profile = newProf;
             }
-
             myProfile = profile;
             updateUI();
             loadMessages();
-            subscribe();
+            _sb.channel('global').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
+                addMsg(p.new.username, p.new.content);
+            }).subscribe();
         }
 
         function updateUI() {
@@ -166,46 +135,28 @@
         function closeProfile() { document.getElementById('profile-modal').classList.add('hidden'); }
 
         async function saveProfile() {
-            const newName = document.getElementById('edit-username').value;
-            const newAvatar = document.getElementById('edit-avatar-url').value;
-            
-            const { error } = await _sb.from('profiles').update({ 
-                username: newName, 
-                avatar_url: newAvatar 
-            }).eq('id', myProfile.id);
-
-            if (error) alert("Fehler: " + error.message);
-            else {
-                myProfile.username = newName;
-                myProfile.avatar_url = newAvatar;
-                updateUI();
-                closeProfile();
-            }
+            const name = document.getElementById('edit-username').value;
+            const url = document.getElementById('edit-avatar-url').value;
+            const { error } = await _sb.from('profiles').update({ username: name, avatar_url: url }).eq('id', myProfile.id);
+            if (error) alert("Username wird schon benutzt!");
+            else { myProfile.username = name; myProfile.avatar_url = url; updateUI(); closeProfile(); }
         }
 
-        // Chat Logik
         async function loadMessages() {
             const { data } = await _sb.from('messages').select('*').order('id', { ascending: true });
-            const container = document.getElementById('messages');
-            container.innerHTML = "";
-            data?.forEach(m => addMessageUI(m.username, m.content));
+            document.getElementById('msg-container').innerHTML = "";
+            data?.forEach(m => addMsg(m.username, m.content));
         }
 
-        function addMessageUI(user, text) {
+        function addMsg(user, text) {
             const div = document.createElement('div');
-            div.className = "flex flex-col";
-            div.innerHTML = `<span class="text-xs font-bold text-white hover:underline cursor-pointer">${user}</span><span class="text-sm text-[#dbdee1]">${text}</span>`;
-            document.getElementById('messages').appendChild(div);
-            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+            div.className = "flex flex-col hover:bg-black/10 px-1 rounded";
+            div.innerHTML = `<span class="text-xs font-bold text-white cursor-pointer hover:underline">${user}</span><span class="text-sm text-gray-300">${text}</span>`;
+            const c = document.getElementById('msg-container');
+            c.appendChild(div); c.scrollTop = c.scrollHeight;
         }
 
-        function subscribe() {
-            _sb.channel('global').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
-                addMessageUI(p.new.username, p.new.content);
-            }).subscribe();
-        }
-
-        document.getElementById('msg-input').addEventListener('keypress', async (e) => {
+        document.getElementById('chat-input').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter' && e.target.value.trim()) {
                 const val = e.target.value; e.target.value = "";
                 await _sb.from('messages').insert([{ username: myProfile.username, content: val }]);
@@ -213,7 +164,7 @@
         });
 
         function logout() { _sb.auth.signOut(); location.reload(); }
-        _sb.auth.getSession().then(({data}) => { if (data.session) initApp(data.session.user); });
+        _sb.auth.getSession().then(({data}) => { if (data.session) startApp(data.session.user); });
     </script>
 </body>
 </html>
